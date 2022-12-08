@@ -30,6 +30,8 @@ include(CMakeDependentOption)
 
 cmake_dependent_option(GLFW_USE_OSMESA "Use OSMesa for offscreen context creation" OFF
                        "UNIX" OFF)
+cmake_dependent_option(GLFW_USE_VIVANTE "Use Vivante FB API for window creation" OFF
+                       "UNIX" OFF)
 cmake_dependent_option(GLFW_USE_HYBRID_HPG "Force use of high-performance GPU on hybrid systems" OFF
                        "WIN32" OFF)
 cmake_dependent_option(GLFW_USE_WAYLAND "Use Wayland for window creation" OFF
@@ -148,6 +150,9 @@ endif()
 if (GLFW_USE_WAYLAND)
     set(_GLFW_WAYLAND 1)
     message(STATUS "Using Wayland for window creation")
+elseif (GLFW_USE_VIVANTE)
+    set(_GLFW_VIVANTE 1)
+    message(STATUS "Using Vivante for window creation")
 elseif (GLFW_USE_OSMESA)
     set(_GLFW_OSMESA 1)
     message(STATUS "Using OSMesa for headless context creation")
@@ -275,6 +280,27 @@ if (_GLFW_WAYLAND)
             list(APPEND glfw_LIBRARIES "${EPOLLSHIM_LIBRARIES}")
         endif()
     endif()
+endif()
+
+#--------------------------------------------------------------------
+# Use Vivante FB API for window creation
+#--------------------------------------------------------------------
+if (_GLFW_VIVANTE)
+    include(CheckSymbolExists)
+
+    # Check for Vivante FB API
+    set(CMAKE_REQUIRED_LIBRARIES -lEGL)
+    set(CMAKE_REQUIRED_DEFINITIONS "-DEGL_API_FB=1")
+    check_symbol_exists(fbGetDisplay "EGL/eglplatform.h" HAVE_VIVANTE_FB_API)
+    unset(CMAKE_REQUIRED_DEFINITIONS)
+    unset(CMAKE_REQUIRED_LIBRARIES)
+
+    if (NOT HAVE_VIVANTE_FB_API)
+        message(FATAL_ERROR "Vivante FB API not found")
+    endif()
+    unset(HAVE_VIVANTE_FB_API)
+
+    list(APPEND glfw_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
 endif()
 
 #--------------------------------------------------------------------

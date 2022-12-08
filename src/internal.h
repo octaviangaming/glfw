@@ -190,6 +190,8 @@ typedef void (APIENTRY * PFN_vkVoidFunction)(void);
  #include "wl_platform.h"
 #elif defined(_GLFW_OSMESA)
  #include "null_platform.h"
+#elif defined(_GLFW_VIVANTE)
+ #include "vivante_platform.h"
 #else
  #error "No supported window creation API selected"
 #endif
@@ -511,6 +513,12 @@ struct _GLFWmutex
     _GLFW_PLATFORM_MUTEX_STATE;
 };
 
+// Define empty state by deafault. This allows not to touch all platforms
+//
+#if !defined(_GLFW_PLATFORM_LIBRARY_EVDEV_STATE)
+ #define _GLFW_PLATFORM_LIBRARY_EVDEV_STATE
+#endif
+
 // Library global data
 //
 struct _GLFWlibrary
@@ -583,6 +591,8 @@ struct _GLFWlibrary
     _GLFW_EGL_LIBRARY_CONTEXT_STATE;
     // This is defined in osmesa_context.h
     _GLFW_OSMESA_LIBRARY_CONTEXT_STATE;
+    // This is defined in evdev.h
+    _GLFW_PLATFORM_LIBRARY_EVDEV_STATE;
 };
 
 // Global state shared between compilation units of GLFW
