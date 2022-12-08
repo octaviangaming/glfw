@@ -18,6 +18,10 @@ MinSizeRel
 RelWithDebInfo
 *.opensdf
 
+# CLion clutter
+/.idea/
+/cmake-build-*/
+
 # Xcode clutter
 GLFW.build
 GLFW.xcodeproj
